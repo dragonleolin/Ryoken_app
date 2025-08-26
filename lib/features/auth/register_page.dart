@@ -20,8 +20,8 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() { _busy = true; _msg = null; });
     try {
       final api = context.read<ApiService>();
-      final resp = await api.register({'email': _email.text.trim(), 'password': _password.text, 'name': _name.text});
-      setState(() => _msg = resp.statusCode == 200 ? '註冊成功，請返回登入。' : '註冊失敗 (${resp.statusCode})');
+      //final resp = await api.register({'email': _email.text.trim(), 'password': _password.text, 'name': _name.text});
+      //setState(() => _msg = resp.statusCode == 200 ? '註冊成功，請返回登入。' : '註冊失敗 (${resp.statusCode})');
     } catch (e) {
       setState(() => _msg = '發生錯誤：$e');
     } finally {

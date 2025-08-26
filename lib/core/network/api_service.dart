@@ -1,61 +1,73 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../config/env.dart';
-import '../storage/token_storage.dart';
 
 class ApiService {
   final AppEnv env;
   ApiService(this.env);
+  // 🔹 切換環境（LOCAL / PROD）
+  static String get baseUrl => Platform.isAndroid
+      ? "http://10.0.2.2:8080"
+      : "http://localhost:8080";
 
-  Future<http.Response> _send(String method, String path,
-      {Map<String, String>? headers, Object? body, Map<String, dynamic>? query}) async {
-    final token = await TokenStorage.readToken();
-    final uri = Uri.parse('${env.baseUrl}$path').replace(queryParameters: query?.map((k, v) => MapEntry(k, '$v')));
-    final baseHeaders = {
+  // 🔹 共用 http headers
+  static Future<Map<String, String>> _getHeaders({bool withAuth = false}) async {
+    final headers = {
       'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
-      ...?headers,
     };
-    switch (method) {
-      case 'GET':
-        return await http.get(uri, headers: baseHeaders);
-      case 'POST':
-        return await http.post(uri, headers: baseHeaders, body: body is String ? body : jsonEncode(body ?? {}));
-      case 'PUT':
-        return await http.put(uri, headers: baseHeaders, body: body is String ? body : jsonEncode(body ?? {}));
-      case 'DELETE':
-        return await http.delete(uri, headers: baseHeaders);
-      default:
-        throw UnsupportedError('Method $method');
+
+    if (withAuth) {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      if (token != null && token.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $token';
+      }
     }
+
+    return headers;
   }
 
-  // ==== Auth & User ====
-  Future<http.Response> register(Map<String, dynamic> dto) => _send('POST', '/api/auth/register', body: dto);
-  Future<http.Response> login(String email, String password) =>
-      _send('POST', '/api/auth/login', body: {'account': email, 'password': password});
-  Future<http.Response> profile() => _send('GET', '/api/user/profile');
-  Future<http.Response> updateProfile(Map<String, dynamic> dto) =>
-      _send('PUT', '/api/user/profile', body: dto);
+  // 🔹 登入
+  static Future<http.Response> login(String email, String password) async {
+    final url = Uri.parse('$baseUrl/api/auth/login');
+    final response = await http.post(
+      url,
+      headers: await _getHeaders(),
+      body: jsonEncode({
+        "account": email,
+        "password": password,
+      }),
+    );
 
-  // ==== Notification ====
-  Future<http.Response> updateNotificationSetting(Map<String, dynamic> dto) =>
-      _send('POST', '/api/user/updateNotificationSetting', body: dto);
-  Future<http.Response> getNotificationSetting(String email) =>
-      _send('GET', '/api/notification/setting/$email');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['data']['token'] as String?;
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+      }
+    }
 
-  // ==== Subscription ====
-  Future<http.Response> getPlans() => _send('GET', '/api/subscription/plans');
-  Future<http.Response> getSubStatus() => _send('GET', '/api/subscription/status');
-  Future<http.Response> applyPlan(String planId) =>
-      _send('POST', '/api/subscription/apply', query: {'planId': planId});
-  Future<http.Response> cancelPlan() => _send('POST', '/api/subscription/cancel');
+    return response;
+  }
 
-  // ==== Admin ====
-  Future<http.Response> adminUsers() => _send('GET', '/api/admin/users');
-  Future<http.Response> adminUserDetail(String email) => _send('GET', '/api/admin/user/$email');
-  Future<http.Response> adminCreatePlan(Map<String, dynamic> dto) =>
-      _send('POST', '/api/admin/plan/create', body: dto);
-  Future<http.Response> adminBroadcastPlan(Map<String, dynamic> dto) =>
-      _send('POST', '/api/admin/plan/broadcast', body: dto);
+  // 🔹 取得個人資料
+  static Future<http.Response> getProfile() async {
+    final url = Uri.parse('$baseUrl/api/user/profile');
+    final response = await http.get(
+      url,
+      headers: await _getHeaders(withAuth: true),
+    );
+    return response;
+  }
+
+  // 🔹 登出（清除 Token）
+  static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    print("🔒 Token 已清除");
+  }
 }
