@@ -32,14 +32,8 @@ class ApiService {
 
   // ==== Auth & User ====
   Future<http.Response> register(Map<String, dynamic> dto) => _send('POST', '/api/auth/register', body: dto);
-  Future<http.Response> login(String email, String password) async {
-    final response = await _send('POST', '/api/auth/login', body: {'account': email, 'password': password});
-    if (response.statusCode == 200) {
-      print("✅ 登入成功: ${response.body}");
-    } else {
-      print("❌ 登入失敗: ${response.statusCode} - ${response.body}");
-    }
-  }
+  Future<http.Response> login(String email, String password) =>
+      _send('POST', '/api/auth/login', body: {'account': email, 'password': password});
   Future<http.Response> profile() => _send('GET', '/api/user/profile');
   Future<http.Response> updateProfile(Map<String, dynamic> dto) =>
       _send('PUT', '/api/user/profile', body: dto);

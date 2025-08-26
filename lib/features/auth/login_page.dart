@@ -1,125 +1,108 @@
 import 'package:flutter/material.dart';
-import '../../core/network/api_service.dart';
 
-class LoginPage extends StatefulWidget {
+import '../../core/config/env.dart';
+
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailCtrl = TextEditingController();
-  final TextEditingController passCtrl = TextEditingController();
-
-  bool isLoading = false;
-  String? error;
-
-  Future<void> _login() async {
-    setState(() {
-      isLoading = true;
-      error = null;
-    });
-
-    try {
-      final response = await ApiService.login(
-        emailCtrl.text.trim(),
-        passCtrl.text.trim(),
-      );
-
-      if (response.statusCode == 200) {
-        print("✅ 登入成功: ${response.body}");
-        // TODO: 登入成功後導向主頁
-        // Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        setState(() {
-          error = "登入失敗: ${response.statusCode}";
-        });
-      }
-    } catch (e) {
-      setState(() {
-        error = "登入時發生錯誤: $e";
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const SizedBox(height: 80),
-
-              // 🔹 Logo 區塊（你原本的圖片放 assets）
-              Center(
-                child: Image.asset(
-                  "assets/images/logo.png", // 支援 png/jpeg/svg
-                  height: 120,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // 🔹 Email 輸入框
-              TextFormField(
-                controller: emailCtrl,
-                decoration: const InputDecoration(labelText: "Email"),
-                keyboardType: TextInputType.emailAddress,
-                validator: (v) =>
-                v != null && v.contains('@') ? null : "請輸入正確 Email",
-              ),
-              const SizedBox(height: 10),
-
-              // 🔹 密碼輸入框
-              TextFormField(
-                controller: passCtrl,
-                decoration: const InputDecoration(labelText: "密碼"),
-                obscureText: true,
-                validator: (v) =>
-                v != null && v.length >= 6 ? null : "至少 6 碼",
-              ),
-              const SizedBox(height: 16),
-
-              // 🔹 錯誤訊息
-              if (error != null)
-                Text(
-                  error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
-
-              const SizedBox(height: 12),
-
-              // 🔹 登入按鈕
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: isLoading ? null : _login,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: isLoading
-                        ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : const Text("登入"),
+        child: Column(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: "電子郵件",
+                      filled: true,
+                      fillColor: Colors.white12,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: "密碼",
+                      filled: true,
+                      fillColor: Colors.white12,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.gold,
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    child: const Text("登入"),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      "註冊",
+                      style: TextStyle(color: AppColors.gold),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
 
-              // 🔹 註冊 / Google / LINE 登入（保留樣式）
-              // TODO: 這裡放你原本的設計，我沒有動 UI，只示範接上 login
-            ],
-          ),
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.login, color: AppColors.gold),
+                    label: const Text("使用 Google 登入"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: AppColors.gold,
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.chat_bubble, color: AppColors.gold),
+                    label: const Text("使用 LINE 登入"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: AppColors.gold,
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24, bottom: 16),
+                    child: Text(
+                      "不構成投資建議的責任",
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
