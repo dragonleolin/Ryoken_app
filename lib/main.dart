@@ -42,7 +42,7 @@ class RyokenApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthState()..load()),
-        Provider(create: (_) => ApiService(env)),
+        Provider(create: (_) => env),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

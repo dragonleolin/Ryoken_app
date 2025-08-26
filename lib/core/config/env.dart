@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -8,14 +10,20 @@ class AppColors {
 class AppEnv {
   final String env;
   final String baseUrl;
+
   const AppEnv({required this.env, required this.baseUrl});
 
   factory AppEnv.fromDefine() {
     const env = String.fromEnvironment('ENV', defaultValue: 'local');
-    const base = String.fromEnvironment('BASE_URL', defaultValue: 'http://localhost:8080');
-    return AppEnv(env: env, baseUrl: base);
+    return AppEnv(env: env, baseUrl: AppEnv.platformBaseUrl);
   }
 
-  String get oauthGoogle => '$baseUrl/oauth2/authorization/google';
+  /// 依平台自動決定 baseUrl
+  static String get platformBaseUrl =>
+      Platform.isAndroid ? "http://10.0.2.2:8080" : "http://localhost:8080";
+
+  /// OAuth endpoints
+  String get oauthGoogle => 'http://localhost:8080/oauth2/authorization/google';
   String get oauthLine => '$baseUrl/oauth2/authorization/line';
 }
+

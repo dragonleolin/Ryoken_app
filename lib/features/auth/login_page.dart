@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import '../../core/config/env.dart';
 import '../../core/network/api_service.dart';
 import '../home/home_page.dart';
+import '../oauth/oauth_webview_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
-
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -180,9 +180,36 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // 🔹 Google 登入
+                    // Google 登入按鈕
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final env = AppEnv.fromDefine();
+                        try {
+                          final token = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OAuthWebViewPage(
+                                authUrl: env.oauthGoogle,
+                                successPath: "/oauth2/success",
+                              ),
+                            ),
+                          );
+
+                          if (token != null) {
+                            print("✅ Google 登入成功, Token=$token");
+
+                            // TODO: 儲存 Token
+                            // await TokenStorage.saveToken(token);
+
+                            // 導向首頁
+                            Navigator.pushReplacementNamed(context, "/home/HomePage");
+                          } else {
+                            showGoogleFailedDialog(context);
+                          }
+                        } catch (e) {
+                          showGoogleFailedDialog(context);
+                        }
+                      },
                       icon: const Icon(Icons.login, color: AppColors.gold),
                       label: const Text("使用 Google 登入"),
                       style: ElevatedButton.styleFrom(
@@ -301,3 +328,78 @@ Future<void> showLoginErrorDialog(BuildContext context,
     },
   );
 }
+
+void showGoogleFailedDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.black,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: AppColors.gold, width: 1.2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.warning_amber_rounded,
+                color: AppColors.gold, size: 48),
+            const SizedBox(height: 12),
+            const Text(
+              "第三方登入失敗",
+              style: TextStyle(
+                color: AppColors.gold,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Google / Apple 登入驗證未通過，請重試\n或改用帳密登入",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.gold,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text("重試"),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      // 👇 跳去帳號密碼登入頁
+                      // Navigator.pushNamed(context, "/login");
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.gold, width: 1),
+                      foregroundColor: AppColors.gold,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text("使用帳密登入"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+

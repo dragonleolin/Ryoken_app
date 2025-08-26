@@ -1,17 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/env.dart';
 
 class ApiService {
-  final AppEnv env;
-  ApiService(this.env);
-  // 🔹 切換環境（LOCAL / PROD）
-  static String get baseUrl => Platform.isAndroid
-      ? "http://10.0.2.2:8080"
-      : "http://localhost:8080";
+  static String get baseUrl => AppEnv.platformBaseUrl;
 
   // 🔹 共用 http headers
   static Future<Map<String, String>> _getHeaders({bool withAuth = false}) async {
