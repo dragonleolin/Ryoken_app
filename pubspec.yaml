@@ -1,0 +1,32 @@
+name: ryoken_app
+description: RYOKEN.AI crypto analytics app (Flutter) — auth, API service, tabs scaffold.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=2.19.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  provider: ^6.1.2
+  flutter_secure_storage: ^9.2.2
+  shared_preferences: ^2.3.2
+  url_launcher: ^6.3.1
+  webview_flutter: ^4.8.0
+  lottie: ^3.1.2
+
+  # Icons / Material 3
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/lottie/loading.json
