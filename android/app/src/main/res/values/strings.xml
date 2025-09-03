@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 🔹 Google Sign-In 使用的 Web Client ID -->
+    <string name="default_web_client_id">
+        504321035408-p3iupf18uk6h428lj788odk7klp07635.apps.googleusercontent.com
+    </string>
+</resources>

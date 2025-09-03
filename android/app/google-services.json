@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "504321035408",
+    "project_id": "ryoken-app-android-6c513",
+    "storage_bucket": "ryoken-app-android-6c513.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:504321035408:android:f07dc04c2f96aaeb7d5c15",
+        "android_client_info": {
+          "package_name": "com.ryoken.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "504321035408-p3iupf18uk6h428lj788odk7klp07635.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ryoken.app",
+            "certificate_hash": "075778f20c6b630a400e2d78c3b4bb34cdf02ff1"
+          }
+        },
+        {
+          "client_id": "504321035408-1aiu4fah23s5r53nh24a8gafv6ceo51s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALlxWdn6jO2CnidkLEMbOrbQFAomw6ve4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "504321035408-1aiu4fah23s5r53nh24a8gafv6ceo51s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

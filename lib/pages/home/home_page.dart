@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadProfile() async {
     final api = context.read<ApiService>();
-    // final resp = await api.profile();
+    final response = await ApiService.getProfile();
     // setState(() => _profile = '${resp.statusCode}: ${resp.body}');
   }
 

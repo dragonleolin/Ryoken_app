@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Android Gradle Plugin
+        classpath("com.android.tools.build:gradle:8.1.0")
+        // Google Services plugin (一定要有，讀取 google-services.json)
+        classpath("com.google.gms:google-services:4.4.0")
+    }
+}
 allprojects {
     repositories {
         google()

@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_sign_in: ^6.3.0
   http: ^1.2.2
   provider: ^6.1.2
   flutter_secure_storage: ^9.2.2
@@ -19,14 +20,24 @@ dependencies:
 
   # Icons / Material 3
   cupertino_icons: ^1.0.6
+  firebase_ui_oauth_google: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
     - assets/lottie/loading.json
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png" # ← 這裡放你的 logo 圖片路徑
+#  adaptive_icon_background: "#0xFF0C0C0C"  # Android 8+ 的背景色
+  adaptive_icon_foreground: "assets/images/logo.png"
+  remove_alpha_ios: true

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:ryoken_app/pages/auth/register_page.dart';
 
 import '../../core/config/env.dart';
 import '../../core/network/api_service.dart';
 import '../home/home_page.dart';
-import '../oauth/oauth_webview_page.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,6 +53,60 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+  /// Google 登入
+  Future<void> _handleGoogleLogin() async {
+    try {
+      print("✅ Google _handleGoogleLogin");
+      final googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+        serverClientId: "504321035408-1aiu4fah23s5r53nh24a8gafv6ceo51s.apps.googleusercontent.com",
+      );
+
+      final googleUser = await googleSignIn.signIn();
+      print("✅ Google googleUser=$googleUser");
+      if (googleUser == null) {
+        // 使用者取消登入
+        showGoogleFailedDialog(context);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+
+      final email = googleUser.email;
+      final name = googleUser.displayName ?? "";
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        print("❌ Google 沒有回傳 idToken");
+        showGoogleFailedDialog(context);
+        return;
+      }
+
+      print("✅ Google 登入成功: email=$email, name=$name, idToken=$idToken");
+
+      // 把資料送到後端
+      final response = await ApiService.googleLogin(
+        email: email,
+        name: name,
+        token: idToken,
+      );
+      if (response.statusCode == 200) {
+        // 登入成功 → 進入首頁
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
+      } else {
+        print("❌ 後端登入失敗: ${response.body}");
+        showGoogleFailedDialog(context);
+      }
+    } catch (e, stack) {
+      print("❌ Google 登入錯誤: $e");
+      print(stack);
+      showGoogleFailedDialog(context);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -172,44 +227,29 @@ class _LoginPageState extends State<LoginPage> {
 
                     // 🔹 註冊按鈕
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const RegisterPage()),
+                        );
+
+                        if (result == true && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("🎉 註冊成功，請登入")),
+                          );
+                        }
+                      },
                       child: const Text(
                         "註冊",
                         style: TextStyle(color: AppColors.gold),
                       ),
                     ),
+
                     const SizedBox(height: 12),
 
-                    // Google 登入按鈕
+                    // 🔹 Google 登入按鈕
                     ElevatedButton.icon(
-                      onPressed: () async {
-                        final env = AppEnv.fromDefine();
-                        try {
-                          final token = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => OAuthWebViewPage(
-                                authUrl: env.oauthGoogle,
-                                successPath: "/oauth2/success",
-                              ),
-                            ),
-                          );
-
-                          if (token != null) {
-                            print("✅ Google 登入成功, Token=$token");
-
-                            // TODO: 儲存 Token
-                            // await TokenStorage.saveToken(token);
-
-                            // 導向首頁
-                            Navigator.pushReplacementNamed(context, "/home/HomePage");
-                          } else {
-                            showGoogleFailedDialog(context);
-                          }
-                        } catch (e) {
-                          showGoogleFailedDialog(context);
-                        }
-                      },
+                      onPressed: _handleGoogleLogin,
                       icon: const Icon(Icons.login, color: AppColors.gold),
                       label: const Text("使用 Google 登入"),
                       style: ElevatedButton.styleFrom(
@@ -251,6 +291,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 /// 🔹 自訂登入錯誤提示框
 Future<void> showLoginErrorDialog(BuildContext context,
     {String message = "帳號或密碼錯誤，請重新輸入"}) {
@@ -402,4 +443,6 @@ void showGoogleFailedDialog(BuildContext context) {
     ),
   );
 }
+
+
 

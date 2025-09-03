@@ -23,7 +23,7 @@ class AppEnv {
       Platform.isAndroid ? "http://10.0.2.2:8080" : "http://localhost:8080";
 
   /// OAuth endpoints
-  String get oauthGoogle => 'http://localhost:8080/oauth2/authorization/google';
+  String get oauthGoogle => '$baseUrl/oauth2/authorization/google';
   String get oauthLine => '$baseUrl/oauth2/authorization/line';
 }
 

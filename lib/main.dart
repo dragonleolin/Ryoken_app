@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ryoken_app/pages/splash_screen.dart';
 import 'core/config/env.dart';
-import 'core/storage/token_storage.dart';
 import 'core/network/api_service.dart';
-import 'features/auth/login_page.dart';
-import 'features/home/home_page.dart';
+import 'core/storage/token_storage.dart';
+import 'pages/auth/login_page.dart';
+import 'pages/home/home_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   final env = AppEnv.fromDefine();
-  runApp(RyokenApp(env: env));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthState()..load()),
+        Provider(create: (_) => env),
+        Provider(create: (_) => ApiService()), // 🔹 確保 ApiService 也在這裡
+      ],
+      child: const RyokenApp(),
+    ),
+  );
 }
 
 class AuthState extends ChangeNotifier {
@@ -34,59 +44,19 @@ class AuthState extends ChangeNotifier {
 }
 
 class RyokenApp extends StatelessWidget {
-  final AppEnv env;
-  const RyokenApp({super.key, required this.env});
+  const RyokenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthState()..load()),
-        Provider(create: (_) => env),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'RYOKEN.AI',
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: AppColors.black,
-          primaryColor: AppColors.gold,
-          colorScheme: const ColorScheme.dark(
-            primary: AppColors.gold,
-            secondary: AppColors.gold,
-            surface: AppColors.black,
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: const Color(0xFF111111),
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.6)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.gold, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.gold, width: 2),
-            ),
-          ),
-          checkboxTheme: CheckboxThemeData(
-            checkColor: WidgetStateProperty.all(Colors.black),
-            fillColor: WidgetStateProperty.all(AppColors.gold),
-            side: const BorderSide(color: AppColors.gold),
-          ),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.gold,
-              foregroundColor: Colors.black,
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-          ),
-        ),
-        home: const RootGate(),
-      ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'RYOKEN.AI',
+      theme: ThemeData.dark(),
+      home: const RootGate(),
+      routes: {
+        "/login": (context) => const LoginPage(),
+        "/home": (context) => const HomePage(),
+      },
     );
   }
 }

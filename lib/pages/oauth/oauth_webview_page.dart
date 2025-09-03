@@ -32,9 +32,16 @@ class _OAuthWebViewPageState extends State<OAuthWebViewPage> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageFinished: (_) => setState(() => _loading = false),
+          onPageStarted: (url) {
+            print("🌍 onPageStarted: $url");
+          },
+          onPageFinished: (url) {
+            print("✅ onPageFinished: $url");
+            setState(() => _loading = false);
+          },
           onNavigationRequest: (req) {
             final uri = Uri.parse(req.url);
+            print("🚦 onNavigationRequest: $uri");
             if (uri.path == widget.successPath &&
                 uri.queryParameters['token'] != null) {
               Navigator.pop(context, uri.queryParameters['token']);

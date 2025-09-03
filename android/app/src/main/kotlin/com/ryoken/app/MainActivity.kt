@@ -1,4 +1,4 @@
-package com.example.ryoken_app
+package com.ryoken.app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -7,6 +7,7 @@ import '../config/env.dart';
 class ApiService {
   static String get baseUrl => AppEnv.platformBaseUrl;
 
+
   // 🔹 共用 http headers
   static Future<Map<String, String>> _getHeaders({bool withAuth = false}) async {
     final headers = {
@@ -45,6 +46,60 @@ class ApiService {
       }
     }
 
+    return response;
+  }
+
+  /// 註冊
+  static Future<http.Response> register({
+    required String account,
+    required String password,
+    required String email,
+    required String nickName,
+    String? phone,
+  }) async {
+    final url = Uri.parse("$baseUrl/api/auth/register");
+    final body = jsonEncode({
+      "account": account,
+      "password": password,
+      "email": email,
+      "nickName": nickName,
+      "phone": phone,
+    });
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: body,
+    );
+
+    return response;
+  }
+
+  /// Google 登入 API
+  static Future<http.Response> googleLogin({
+    required String email,
+    required String name,
+    required String token,
+  }) async {
+    final url = Uri.parse("$baseUrl/api/auth/oauth/google");
+    final response = await http.post(
+      url,
+      headers: await _getHeaders(),
+      body: jsonEncode({
+        "email": email,
+        "name": name,
+        "idToken": token, // ✅ 把 Google idToken 傳到 body
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final token = data['data']['token'] as String?;
+      if (token != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+      }
+    }
     return response;
   }
 
