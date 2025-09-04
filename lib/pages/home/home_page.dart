@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/env.dart';
-import '../../core/network/api_service.dart';
 import '../../main.dart';
+import '../../widgets/FearGreedCard.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,18 +13,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _index = 0;
-  String _profile = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _loadProfile();
-  }
-
-  Future<void> _loadProfile() async {
-    final api = context.read<ApiService>();
-    final response = await ApiService.getProfile();
-    // setState(() => _profile = '${resp.statusCode}: ${resp.body}');
+  Widget _buildDashboard() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: const [
+        FearGreedCard(), // 👈 恐懼與貪婪指數卡片
+        SizedBox(height: 16),
+        // 這裡以後可以再加其他卡片
+      ],
+    );
   }
 
   @override
@@ -53,20 +51,6 @@ class _HomePageState extends State<HomePage> {
           NavigationDestination(icon: Icon(Icons.home), label: '首頁'),
           NavigationDestination(icon: Icon(Icons.show_chart), label: '市場'),
           NavigationDestination(icon: Icon(Icons.settings), label: '設定'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDashboard() {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('歡迎回來', style: TextStyle(fontSize: 22, color: AppColors.gold, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          Text('Profile API 回應（示例）：\n$_profile'),
         ],
       ),
     );

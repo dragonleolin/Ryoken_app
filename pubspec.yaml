@@ -33,6 +33,7 @@ flutter:
   assets:
     - assets/images/
     - assets/lottie/loading.json
+    - assets/lottie/Cyan-Purple-Gauge.json
 
 flutter_launcher_icons:
   android: true
