@@ -41,4 +41,4 @@ flutter_launcher_icons:
   image_path: "assets/images/logo.png" # ← 這裡放你的 logo 圖片路徑
 #  adaptive_icon_background: "#0xFF0C0C0C"  # Android 8+ 的背景色
   adaptive_icon_foreground: "assets/images/logo.png"
-  remove_alpha_ios: true
+  min_sdk_android: 21 # 建議設定

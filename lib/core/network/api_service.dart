@@ -17,12 +17,55 @@ class ApiService {
     if (withAuth) {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
+      print("✅ headerToken=$token");
       if (token != null && token.isNotEmpty) {
         headers['Authorization'] = 'Bearer $token';
       }
     }
 
     return headers;
+  }
+
+  /// 取會員與幣種資料
+  static Future<Map<String, dynamic>> fetchMembership(String timeframe) async {
+    final url = Uri.parse("$baseUrl/api/homepage/membership?timeframe=$timeframe");
+    print("✅ fetchMembership url: $url");
+
+    final headers = await ApiService._getHeaders(withAuth: true);
+    print("🔍 Headers used in request: $headers");
+
+    final res = await http.get(
+      url,
+      headers: headers,  // ✅ 改這裡，使用帶有 Bearer token 的 headers
+    );
+
+    print("✅ fetchMembership res: ${res.statusCode}");
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    } else {
+      throw Exception("fetchMembership 失敗: ${res.body}");
+    }
+  }
+
+  /// 取首頁數據
+  static Future<Map<String, dynamic>> fetchHomePageData({
+    required String cryptocurrency,
+    required String timeframe, required String investmentType,
+  }) async {
+    final headers = await ApiService._getHeaders(withAuth: true);
+    final url = Uri.parse(
+        "$baseUrl/api/homepage?cryptocurrency=$cryptocurrency&timeframe=$timeframe&investmentType=$investmentType");
+    print("✅ fetchHomePageData url: $url");
+    final res = await http.get(
+      url,
+      headers: headers,
+    );
+    print("✅ fetchHomePageData res: $res");
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    } else {
+      throw Exception("fetchHomePageData 失敗: ${res.body}");
+    }
   }
 
   // 🔹 登入
@@ -40,6 +83,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['data']['token'] as String?;
+      print("✅ token=$token");
       if (token != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
@@ -95,6 +139,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['data']['token'] as String?;
+      print("✅ token=$token");
       if (token != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);

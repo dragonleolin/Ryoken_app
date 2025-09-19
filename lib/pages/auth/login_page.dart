@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:ryoken_app/pages/auth/register_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/config/env.dart';
 import '../../core/network/api_service.dart';
@@ -34,7 +37,6 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
-        print("✅ 登入成功: ${response.body}");
         // ✅ 登入成功 → 導向主頁
         Navigator.pushReplacement(
           context,
@@ -56,14 +58,14 @@ class _LoginPageState extends State<LoginPage> {
   /// Google 登入
   Future<void> _handleGoogleLogin() async {
     try {
-      print("✅ Google _handleGoogleLogin");
+      //print("✅ Google _handleGoogleLogin");
       final googleSignIn = GoogleSignIn(
         scopes: ['email', 'profile'],
         serverClientId: "504321035408-1aiu4fah23s5r53nh24a8gafv6ceo51s.apps.googleusercontent.com",
       );
 
       final googleUser = await googleSignIn.signIn();
-      print("✅ Google googleUser=$googleUser");
+      //print("✅ Google googleUser=$googleUser");
       if (googleUser == null) {
         // 使用者取消登入
         showGoogleFailedDialog(context);
