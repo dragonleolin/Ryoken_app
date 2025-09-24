@@ -68,6 +68,29 @@ class ApiService {
     }
   }
 
+  // 取 Subscription Plans
+  static Future<Map<String, dynamic>> fetchPlans() async {
+    final headers = await ApiService._getHeaders(withAuth: true);
+    final url = Uri.parse(
+        "$baseUrl/api/admin/subscription");
+    print("✅ fetchPlans url: $url");
+    final res = await http.get(
+      url,
+      headers: headers,
+    );
+    print("✅ fetchPlans res.statusCode: ${res.statusCode}");
+    print("✅ fetchPlans res.body: ${res.body}");
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body);
+      return {
+        "currentPlan": data["currentPlan"],
+        "plans": List<Map<String, dynamic>>.from(data["plans"]),
+      };
+    } else {
+      throw Exception("fetchPlans 失敗: ${res.body}");
+    }
+  }
+
   // 🔹 登入
   static Future<http.Response> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/api/auth/login');

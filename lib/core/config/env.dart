@@ -3,12 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // static const Color gold = Color(0xFFBE942A);
-  // static const Color black = Color(0xFF0C0C0C);
-  // static const Color goldSoft = Color(0xFFB7932A);
-  // static const Color bg = Color(0xFF0B0F13);
-  // static const Color card = Color(0xFF11161D);
-  // static const Color muted = Color(0xFF8B93A1);
 
   static const goldSoft = Color(0xFFB7932A);
   static const ok = Color(0xFF22C55E); // 綠
@@ -19,6 +13,8 @@ class AppColors {
   static const Color card = Color(0xFF11161D);    // 卡片底
   static const Color gold = Color(0xFFD4AF37);    // 金色
   static const Color muted = Color(0xFF8B93A1);   // 淺灰文字
+  static const Color border = Color(0xFF2A2F38);
+  static const Color disabled = Color(0xFF3A3F47);
 
   // 白色色階
   static const Color white = Colors.white;             // 純白

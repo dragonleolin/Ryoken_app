@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/config/env.dart';
 import '../../core/network/api_service.dart';
+import '../subscription_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -230,7 +231,10 @@ class _HomePageState extends State<HomePage> {
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(ctx);
-                              Navigator.pushNamed(context, "/membership");
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (_) => const SubscriptionPage()),
+                              );
                             },
                             child: const Text("升級會員"),
                           ),
