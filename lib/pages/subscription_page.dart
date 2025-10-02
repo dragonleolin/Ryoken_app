@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import '../../core/config/env.dart';
 import '../../core/network/api_service.dart'; // 🔹 你專案的 ApiService
 import 'home/home_page.dart';
@@ -14,13 +15,13 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   String? currentPlan;
   List<Map<String, dynamic>> plans = [];
 
-  String selectedPlanId = "免費";
+  int? selectedPlanId;
   String selectedPayment = "credit"; // 預設付款方式
 
   final List<Map<String, String>> paymentMethods = [
     {"id": "credit", "name": "信用卡"},
-    {"id": "usdt", "name": "USDT"},
-    {"id": "applepay", "name": "Apple Pay"},
+    {"id": "googlePay", "name": "Google Pay"},
+    {"id": "applePay", "name": "Apple Pay"},
   ];
 
   @override
@@ -43,18 +44,74 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   Future<void> _upgradePlan() async {
     try {
-      // 這要改成要串接的
-      final response = await ApiService.fetchMembership("");
-      if (response["success"] == true) {
-        _showDialog("升級成功 🎉", "方案已升級為 $selectedPlanId");
-      } else {
-        _showDialog("升級失敗 ❌", response["message"] ?? "未知錯誤");
+
+      if (selectedPayment == "credit") {
+        // ✅ 信用卡 → 呼叫後端建立 PaymentIntent
+        final intent = await ApiService.createPaymentIntent(selectedPlanId!);
+        //final clientSecret = intent["clientSecret"];
+        print("✅ intent: ${intent}");
+        // 初始化付款介面
+        // await Stripe.instance.initPaymentSheet(
+        //   paymentSheetParameters: SetupPaymentSheetParameters(
+        //     paymentIntentClientSecret: clientSecret,
+        //     style: ThemeMode.dark,
+        //     merchantDisplayName: "Ryoken AI",
+        //   ),
+        // );
+        //
+        // // 顯示 Stripe 付款 UI
+        // await Stripe.instance.presentPaymentSheet();
+
+        if (intent.isNotEmpty) {
+          await ApiService.confirmPayment(
+            paymentIntentId: intent["paymentIntentId"] as int, // ✅ 明確轉成 int
+            planId: selectedPlanId!,
+          );
+
+          _showDialog("升級成功 🎉", "方案已升級為 $selectedPlanId");
+        } else {
+          _showDialog("錯誤", "無法完成付款，請稍後再試");
+        }
+
+      } else if (selectedPayment == "applePay" || selectedPayment == "googlePay") {
+        // ✅ Apple Pay / Google Pay → 不需先建立 PaymentIntent，直接呼叫 Stripe PaymentSheet
+        print("✅ Apple Pay / Google Pay");
+        await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+            merchantDisplayName: "Ryoken AI",
+            style: ThemeMode.dark,
+            applePay: selectedPayment == "applePay"
+                ? const PaymentSheetApplePay(merchantCountryCode: 'TW')
+                : null,
+            googlePay: selectedPayment == "googlePay"
+                ? const PaymentSheetGooglePay(
+              merchantCountryCode: 'TW',
+              currencyCode: 'TWD',
+              testEnv: true,
+            )
+                : null,
+          ),
+        );
+
+        await Stripe.instance.presentPaymentSheet();
+
+        // ✅ 付款完成後通知後端
+        await ApiService.confirmPayment(
+          paymentIntentId: selectedPlanId!,
+          planId: selectedPlanId!,
+        );
+        _showDialog("升級成功 🎉", "已透過 ${selectedPayment == "applepay" ? "Apple Pay" : "Google Pay"} 完成付款");
       }
+
+    } on StripeException catch (e) {
+      debugPrint("❌ Stripe 錯誤: $e");
+      _showDialog("付款失敗", "Stripe 錯誤: ${e.error.localizedMessage}");
     } catch (e) {
       debugPrint("❌ 升級失敗: $e");
-      _showDialog("錯誤", "無法連線伺服器");
+      _showDialog("錯誤", "無法完成付款，請稍後再試");
     }
   }
+
 
   void _showDialog(String title, String message) {
     showDialog(
@@ -127,7 +184,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   final isSelected = selectedPlanId == plan["id"];
 
                   return GestureDetector(
-                    onTap: () => setState(() => selectedPlanId = plan["id"]),
+                    onTap: () => setState(() => selectedPlanId = plan["id"] as int),
                     child: _PlanCard(
                       title: plan["title"] ?? "",
                       label: plan["priceLabel"] ?? "",

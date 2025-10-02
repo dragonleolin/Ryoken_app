@@ -68,6 +68,43 @@ class ApiService {
     }
   }
 
+  /// 🔹 建立信用卡付款 Intent
+  static Future<Map<String, dynamic>> createPaymentIntent(int planId) async {
+    final url = Uri.parse("$baseUrl/api/subscription/create-intent?planId=$planId");
+    print("✅ createPaymentIntent url: $url");
+
+    final headers = await ApiService._getHeaders(withAuth: true);
+    final res = await http.post(url, headers: headers);
+
+    print("✅ createPaymentIntent res: ${res.statusCode}");
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    } else {
+      throw Exception("createPaymentIntent 失敗: ${res.body}");
+    }
+  }
+
+  /// 🔹 確認付款
+  static Future<Map<String, dynamic>> confirmPayment({
+    required int  paymentIntentId,
+    required int planId,
+  }) async {
+    final url = Uri.parse(
+      "$baseUrl/api/subscription/confirm?paymentIntentId=$paymentIntentId&planId=$planId",
+    );
+    print("✅ confirmPayment url: $url");
+
+    final headers = await ApiService._getHeaders(withAuth: true);
+    final res = await http.post(url, headers: headers);
+
+    print("✅ confirmPayment res: ${res.statusCode}");
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    } else {
+      throw Exception("confirmPayment 失敗: ${res.body}");
+    }
+  }
+
   // 取 Subscription Plans
   static Future<Map<String, dynamic>> fetchPlans() async {
     final headers = await ApiService._getHeaders(withAuth: true);
